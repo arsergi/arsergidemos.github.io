@@ -220,6 +220,17 @@ body {
   background: #000;
 }
 
+/* --- Portrait pieces (YouTube Shorts) --- */
+
+.artwork--portrait .artwork-frame {
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+.artwork--portrait .artwork-image {
+  aspect-ratio: 9 / 16;
+}
+
 /* --- Placard --- */
 
 .artwork-placard {
@@ -318,6 +329,15 @@ body {
 
 .player-mount {
   aspect-ratio: 16 / 9;
+}
+
+/* Portrait (Shorts) lightbox: narrow 9:16 player, clamped to viewport height */
+.lightbox--portrait .lightbox-body {
+  width: min(420px, 100%, calc((100dvh - 120px) * 9 / 16));
+}
+
+.lightbox--portrait .player-mount {
+  aspect-ratio: 9 / 16;
 }
 
 .player-mount iframe {

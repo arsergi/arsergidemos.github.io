@@ -42,20 +42,21 @@
 
   function buildArtwork(video, index) {
     var figure = document.createElement("figure");
-    figure.className = "artwork";
+    figure.className = video.portrait ? "artwork artwork--portrait" : "artwork";
     figure.style.setProperty("--i", String(index));
 
     var frame = document.createElement("button");
     frame.className = "artwork-frame";
     frame.type = "button";
     frame.dataset.videoId = video.id;
+    if (video.portrait) frame.dataset.orientation = "portrait";
     frame.setAttribute("aria-label", "Play video: " + video.title);
 
     var img = document.createElement("img");
     img.className = "artwork-image";
     img.alt = "";
     img.loading = "lazy";
-    attachThumbnail(img, figure, video.id);
+    attachThumbnail(img, figure, video);
     frame.appendChild(img);
 
     var placard = document.createElement("figcaption");
@@ -76,52 +77,77 @@
     return figure;
   }
 
-  function attachThumbnail(img, figure, videoId) {
-    var triedFallback = false;
+  function attachThumbnail(img, figure, video) {
+    // oardefault is YouTube's true 9:16 Shorts thumbnail.
+    var candidates = video.portrait
+      ? ["oardefault", "hqdefault"]
+      : ["maxresdefault", "hqdefault"];
+    var index = 0;
 
-    function useFallback() {
-      if (triedFallback) {
-        // Fallback also failed — reveal the artwork anyway.
+    function tryNext() {
+      if (index >= candidates.length) {
+        // All candidates failed — reveal the artwork anyway.
         figure.classList.add("is-loaded");
         return;
       }
-      triedFallback = true;
-      img.src = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
+      img.src = "https://i.ytimg.com/vi/" + video.id + "/" +
+        candidates[index++] + ".jpg";
     }
 
     function onLoad() {
-      // maxresdefault may 200 with a 120x90 gray placeholder.
-      if (!triedFallback && img.naturalWidth <= 120) {
-        useFallback();
+      // A candidate may 200 with a 120x90 gray placeholder.
+      if (img.naturalWidth <= 120 && index < candidates.length) {
+        tryNext();
         return;
       }
       figure.classList.add("is-loaded");
     }
 
     img.addEventListener("load", onLoad);
-    img.addEventListener("error", useFallback);
-    img.src = "https://i.ytimg.com/vi/" + videoId + "/maxresdefault.jpg";
+    img.addEventListener("error", tryNext);
+    tryNext();
 
     // Already-cached image may never fire "load".
     if (img.complete && img.naturalWidth > 0) onLoad();
   }
 
-  // --- Titles ---------------------------------------------------------------
+  // Flip an already-rendered artwork to a portrait frame (Shorts pasted as
+  // watch/youtu.be URLs are only detectable once noembed metadata arrives).
+  function makePortrait(video, figure) {
+    video.portrait = true;
+    figure.classList.add("artwork--portrait");
+    var frame = figure.querySelector(".artwork-frame");
+    frame.dataset.orientation = "portrait";
+    // Replace the img to drop old load/error listeners, then reload with
+    // the portrait thumbnail chain.
+    var oldImg = figure.querySelector(".artwork-image");
+    var newImg = oldImg.cloneNode(false);
+    oldImg.replaceWith(newImg);
+    attachThumbnail(newImg, figure, video);
+  }
 
-  function fetchTitle(video, figure) {
+  // --- Metadata (title + orientation) ----------------------------------------
+
+  function fetchMeta(video, figure) {
     var endpoint = "https://noembed.com/embed?url=" +
       encodeURIComponent("https://www.youtube.com/watch?v=" + video.id);
 
     fetch(endpoint)
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        if (!data || data.error || typeof data.title !== "string" || !data.title) return;
-        video.title = data.title;
-        figure.querySelector(".artwork-title").textContent = data.title;
-        figure.querySelector(".artwork-frame")
-          .setAttribute("aria-label", "Play video: " + data.title);
+        if (!data || data.error) return;
+        if (!video.hasCustomTitle &&
+            typeof data.title === "string" && data.title) {
+          video.title = data.title;
+          figure.querySelector(".artwork-title").textContent = data.title;
+          figure.querySelector(".artwork-frame")
+            .setAttribute("aria-label", "Play video: " + data.title);
+        }
+        if (!video.portrait && Number(data.height) > Number(data.width)) {
+          makePortrait(video, figure);
+        }
       })
-      .catch(function () { /* keep fallback title */ });
+      .catch(function () { /* keep fallback title/orientation */ });
   }
 
   // --- Lightbox -------------------------------------------------------------
@@ -132,6 +158,10 @@
 
   function openLightbox(videoId, title, trigger) {
     lastTrigger = trigger;
+    lightbox.classList.toggle(
+      "lightbox--portrait",
+      trigger.dataset.orientation === "portrait"
+    );
 
     var iframe = document.createElement("iframe");
     iframe.src = "https://www.youtube-nocookie.com/embed/" + videoId +
@@ -179,10 +209,13 @@
         return;
       }
       var customTitle = entry && typeof entry === "object" ? entry.title : undefined;
+      var orientation = entry && typeof entry === "object" ? entry.orientation : undefined;
       videos.push({
         id: id,
         title: customTitle || FALLBACK_TITLE,
-        hasCustomTitle: Boolean(customTitle)
+        hasCustomTitle: Boolean(customTitle),
+        portrait: orientation === "portrait" ||
+          (typeof url === "string" && /\/shorts\//i.test(url))
       });
     });
     return videos;
@@ -213,7 +246,9 @@
     videos.forEach(function (video, index) {
       var figure = buildArtwork(video, index);
       gallery.appendChild(figure);
-      if (!video.hasCustomTitle) fetchTitle(video, figure);
+      // Always fetched: fills in titles and detects portrait Shorts
+      // pasted as regular watch/youtu.be URLs.
+      fetchMeta(video, figure);
     });
 
     // Lightbox wiring: delegate clicks from gallery frames.
