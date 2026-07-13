@@ -16,6 +16,12 @@
   --placard: #FFFFFF;
   --shadow-color: rgba(9, 9, 11, 0.12);
 
+  /* Gilded frame moulding */
+  --gilt-hi: #E9CF8F;
+  --gilt-mid: #B8923F;
+  --gilt-lo: #6E5218;
+  --gilt-warm: #D9B968;
+
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "Jost", "Futura", sans-serif;
 }
@@ -31,6 +37,12 @@
     --brass: #C9A25E;
     --placard: #18181B;
     --shadow-color: rgba(0, 0, 0, 0.55);
+
+    /* Slightly deeper antique gold against the charcoal wall */
+    --gilt-hi: #D9BC74;
+    --gilt-mid: #A57F32;
+    --gilt-lo: #574010;
+    --gilt-warm: #C4A257;
   }
 }
 
@@ -167,13 +179,25 @@ body {
   width: 100%;
   text-align: inherit;
 
-  /* Picture frame: heavy moulding + mat board */
-  border: 12px solid var(--frame);
-  padding: 14px;
-  background: var(--mat);
+  /* Gilded moulding: gold gradient with carved ridge lines (inset rings) */
+  --carve:
+    inset 0 0 0 1px rgba(60, 42, 8, 0.55),
+    inset 0 0 0 3px rgba(255, 244, 214, 0.35),
+    inset 0 0 0 6px rgba(60, 42, 8, 0.35),
+    inset 0 0 0 7px rgba(255, 244, 214, 0.18);
+  border: 0;
+  padding: clamp(16px, 2.2vw, 20px);
+  background: linear-gradient(
+    135deg,
+    var(--gilt-hi) 0%,
+    var(--gilt-mid) 22%,
+    var(--gilt-lo) 48%,
+    var(--gilt-warm) 74%,
+    var(--gilt-mid) 100%
+  );
   box-shadow:
     0 18px 40px -12px var(--shadow-color),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    var(--carve);
 
   position: relative;
   transition:
@@ -181,7 +205,7 @@ body {
     box-shadow 220ms ease-out;
 }
 
-/* Subtle glass gloss across the frame */
+/* Subtle gloss sweeping across the gilt */
 .artwork-frame::after {
   content: "";
   position: absolute;
@@ -189,8 +213,8 @@ body {
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0) 40%
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 45%
   );
 }
 
@@ -204,7 +228,7 @@ body {
     transform: translateY(-4px) scale(1.01);
     box-shadow:
       0 28px 56px -14px var(--shadow-color),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      var(--carve);
   }
 }
 
@@ -218,6 +242,9 @@ body {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   background: #000;
+  /* Mat board around the artwork, with a dark fillet against the gilt */
+  border: clamp(10px, 1.6vw, 14px) solid var(--mat);
+  box-shadow: 0 0 0 1px rgba(60, 42, 8, 0.5);
 }
 
 /* --- Portrait pieces (YouTube Shorts) --- */
@@ -322,13 +349,26 @@ body {
 }
 
 .lightbox-frame {
-  border: 10px solid var(--frame);
-  background: #000;
-  box-shadow: 0 40px 90px -20px rgba(0, 0, 0, 0.6);
+  border: 0;
+  padding: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--gilt-hi) 0%,
+    var(--gilt-mid) 22%,
+    var(--gilt-lo) 48%,
+    var(--gilt-warm) 74%,
+    var(--gilt-mid) 100%
+  );
+  box-shadow:
+    0 40px 90px -20px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(60, 42, 8, 0.55),
+    inset 0 0 0 3px rgba(255, 244, 214, 0.35);
 }
 
 .player-mount {
   aspect-ratio: 16 / 9;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(60, 42, 8, 0.5);
 }
 
 /* Portrait (Shorts) lightbox: narrow 9:16 player, clamped to viewport height */
@@ -412,7 +452,7 @@ body {
   }
 
   .artwork-frame {
-    border-width: 10px;
+    padding: 14px;
   }
 }
 
