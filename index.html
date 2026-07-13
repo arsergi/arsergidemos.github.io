@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A curated gallery of software demos, presented as works of art.">
+  <title>The Demo Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="gallery-hero">
+    <p class="gallery-eyebrow">A curated exhibition</p>
+    <h1 class="gallery-title">The Demo Gallery</h1>
+    <p class="gallery-subtitle">Software demonstrations, hung with care.</p>
+  </header>
+
+  <main id="gallery" class="gallery-wall" aria-label="Video gallery">
+    <!-- artworks injected by gallery.js -->
+  </main>
+
+  <div id="empty-state" class="empty-state" hidden>
+    <h2>The gallery awaits its first exhibition.</h2>
+    <p>Open <code>videos.js</code> and add your YouTube URLs to hang the first pieces on the wall.</p>
+  </div>
+
+  <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Video player">
+    <div class="lightbox-backdrop" data-close></div>
+    <div class="lightbox-body">
+      <button class="lightbox-close" type="button" aria-label="Close video" data-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="5" y1="5" x2="19" y2="19"></line>
+          <line x1="19" y1="5" x2="5" y2="19"></line>
+        </svg>
+      </button>
+      <div class="lightbox-frame">
+        <div id="player-mount" class="player-mount"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="gallery-footer">
+    <p>Curated by <a href="https://github.com/arsergidemos">arsergidemos</a> &middot; Est. 2026</p>
+  </footer>
+
+  <script src="videos.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>
