@@ -25,4 +25,6 @@ const VIDEOS = [
   { url: "https://www.youtube.com/shorts/oWKcwYTmva0", title: "Ansible DevTools VS Code Extension" },
 
   { url: "https://www.youtube.com/shorts/hT3z79nbN2o", title: "Ansible VS Code Extension 2 (Epilepsy Warning)" },
+
+  { url: "https://youtu.be/xu_7yIbmqKg", title: "An Intern's Guide to Ansible: The Basics" },
 ];
