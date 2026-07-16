@@ -68,7 +68,7 @@
 
     var caption = document.createElement("p");
     caption.className = "artwork-caption";
-    caption.textContent = "Software Demo";
+    caption.textContent = "Click to View";
 
     placard.appendChild(title);
     placard.appendChild(caption);
